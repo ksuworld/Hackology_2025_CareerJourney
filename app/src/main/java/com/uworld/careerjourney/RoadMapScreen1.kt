@@ -37,60 +37,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.min
 
 // ---------------------------------------------
-// Data model
-// ---------------------------------------------
-data class Milestone(
-    val title: String,
-    var t: Float
-)
-
-// ---------------------------------------------
-// Utility for a multi-segment Candy Crush style path
-// ---------------------------------------------
-class CandyRoadPath(private val segments: List<CubicSegment>) {
-    data class CubicSegment(
-        val start: Offset,
-        val cp1: Offset,
-        val cp2: Offset,
-        val end: Offset
-    )
-
-    fun pointAt(tGlobal: Float): Offset {
-        val segmentCount = segments.size
-        val segT = tGlobal * segmentCount
-        val segIndex = segT.toInt().coerceIn(0, segmentCount - 1)
-        val localT = segT - segIndex
-        val seg = segments[segIndex]
-        return cubicBezier(seg.start, seg.cp1, seg.cp2, seg.end, localT)
-    }
-
-    fun nearestPointTo(p: Offset, samples: Int = 400): Pair<Float, Offset> {
-        var bestT = 0f
-        var bestD = Float.MAX_VALUE
-        var bestP = Offset.Zero
-        for (i in 0..samples) {
-            val t = i / samples.toFloat()
-            val pt = pointAt(t)
-            val d = (pt - p).getDistance()
-            if (d < bestD) {
-                bestD = d
-                bestT = t
-                bestP = pt
-            }
-        }
-        return bestT to bestP
-    }
-
-    private fun cubicBezier(p0: Offset, p1: Offset, p2: Offset, p3: Offset, t: Float): Offset {
-        val u = 1 - t
-        return p0 * (u * u * u) +
-                p1 * (3 * u * u * t) +
-                p2 * (3 * u * t * t) +
-                p3 * (t * t * t)
-    }
-}
-
-// ---------------------------------------------
 // Main Roadmap Composable
 // ---------------------------------------------
 @OptIn(ExperimentalMaterial3Api::class)
@@ -297,9 +243,9 @@ fun CandyRoadWrapper(
             }) {
                 // Draw road
                 val roadPath = Path().apply {
-                    moveTo(pathSegments.first().start.x, pathSegments.first().start.y)
+                    moveTo(pathSegments.first().p0.x, pathSegments.first().p0.y)
                     pathSegments.forEach {
-                        cubicTo(it.cp1.x, it.cp1.y, it.cp2.x, it.cp2.y, it.end.x, it.end.y)
+                        cubicTo(it.p1.x, it.p1.y, it.p2.x, it.p2.y, it.p3.x, it.p3.y)
                     }
                 }
 
