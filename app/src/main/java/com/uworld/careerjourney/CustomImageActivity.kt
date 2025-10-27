@@ -80,6 +80,11 @@ data class SegmentData(
 //private var ROAD_HEX_COLOR = 0xFF0164BE // Your known road color in ARGB format
 private const val COLOR_TOLERANCE = 30 // Max allowed difference for R, G, and B components (0-255)
 
+// Base velocity factor (used for standard sensitivity)
+private const val BASE_DRAG_VELOCITY = 1.0f
+// You can increase this factor to make all drag movements snappier, regardless of zoom.
+private const val ACCELERATION_MULTIPLIER = 1.5f
+
 // ----------------------------------------------------------------------
 // 1. Core State and Logic
 // ----------------------------------------------------------------------
@@ -178,12 +183,19 @@ fun InteractiveRoadmapScreen(
         val scaledWidth = imageSize.width * newScale
         val scaledHeight = imageSize.height * newScale
 
+        // The previous dynamic factor (1.0f / newScale) is REMOVED.
+        // The drag movement is now based on a fixed velocity boost, ignoring the zoom level's need for precision.
+        val dynamicVelocityFactor = BASE_DRAG_VELOCITY * ACCELERATION_MULTIPLIER * currentScale
+
+        // Apply the constant factor to the drag amount
+        val acceleratedDragAmount = dragAmount * dynamicVelocityFactor
+
         val maxOffsetX = max(0f, (scaledWidth - boxSize.width) / 2f)
         val maxOffsetY = max(0f, (scaledHeight - boxSize.height) / 2f) + initialOffsetY.value
 
         // Calculate new offsets
-        val newOffsetX = (offsetX.value + dragAmount.x).coerceIn(-maxOffsetX, maxOffsetX)
-        val newOffsetY = (offsetY.value + dragAmount.y).coerceIn(-maxOffsetY, maxOffsetY)
+        val newOffsetX = (offsetX.value + acceleratedDragAmount.x).coerceIn(-maxOffsetX, maxOffsetX)
+        val newOffsetY = (offsetY.value + acceleratedDragAmount.y).coerceIn(-maxOffsetY, maxOffsetY)
 
         // Apply
         scope.launch {
@@ -201,8 +213,8 @@ fun InteractiveRoadmapScreen(
 
         if (imageX in 0f..imageSize.width.toFloat() && imageY in 0f..imageSize.height.toFloat()) {
             // 2. Get the color from the bitmap at the touch point
-            val pixelX = imageX.toInt()/*.coerceIn(0, originalBitmap.width - 1)*/
-            val pixelY = imageY.toInt()/*.coerceIn(0, originalBitmap.height - 1)*/
+            val pixelX = imageX.toInt().coerceIn(0, originalBitmap.width - 1)
+            val pixelY = imageY.toInt().coerceIn(0, originalBitmap.height - 1)
             val pixelColor = originalBitmap.getPixel(pixelX, pixelY)
 
             // Format the integer color (pixelColor) into an 8-digit hexadecimal string (AARRGGBB)
@@ -270,7 +282,9 @@ fun InteractiveRoadmapScreen(
                     }
                 }
                 .pointerInput(Unit) {
-                    detectTapGestures(onTap = onSingleTap)
+                    detectTapGestures(
+                        onTap = onSingleTap
+                    )
                 }
         )
 

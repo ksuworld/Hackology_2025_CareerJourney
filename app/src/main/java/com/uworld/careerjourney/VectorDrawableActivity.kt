@@ -64,7 +64,10 @@ import kotlin.math.min
 
 // Constants
 private const val COLOR_TOLERANCE = 70 // Max allowed difference for R, G, and B components (0-255)
-
+// Base velocity factor (used for standard sensitivity)
+private const val BASE_DRAG_VELOCITY = 1.0f
+// You can increase this factor to make all drag movements snappier, regardless of zoom.
+private const val ACCELERATION_MULTIPLIER = 1.5f
 // ----------------------------------------------------------------------
 // 1. UTILITIES: Vector to Bitmap & Darkest Color Finder
 // ----------------------------------------------------------------------
@@ -204,11 +207,18 @@ fun InteractiveRoadmapScreenVectorDrawable(
         val scaledWidth = imageSize.width * newScale
         val scaledHeight = imageSize.height * newScale
 
+        // The previous dynamic factor (1.0f / newScale) is REMOVED.
+        // The drag movement is now based on a fixed velocity boost, ignoring the zoom level's need for precision.
+        val dynamicVelocityFactor = BASE_DRAG_VELOCITY * ACCELERATION_MULTIPLIER
+
+        // Apply the constant factor to the drag amount
+        val acceleratedDragAmount = dragAmount * dynamicVelocityFactor
+
         val maxOffsetX = max(0f, (scaledWidth - boxSize.width) / 2f)
         val maxOffsetY = max(0f, (scaledHeight - boxSize.height) / 2f) + initialOffsetY.value
 
-        val newOffsetX = (offsetX.value + dragAmount.x).coerceIn(-maxOffsetX, maxOffsetX)
-        val newOffsetY = (offsetY.value + dragAmount.y).coerceIn(-maxOffsetY, maxOffsetY)
+        val newOffsetX = (offsetX.value + acceleratedDragAmount.x).coerceIn(-maxOffsetX, maxOffsetX)
+        val newOffsetY = (offsetY.value + acceleratedDragAmount.y).coerceIn(-maxOffsetY, maxOffsetY)
 
         scope.launch {
             scale.snapTo(newScale)
