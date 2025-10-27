@@ -51,13 +51,13 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CareerJourneyTheme {
-                var selectedScreenIndex by remember { mutableIntStateOf(16) } // Default to RoadMapScreen11
+                var selectedScreenIndex by remember { mutableIntStateOf(1) } // Default to RoadMapScreen11
                 Scaffold(
                     modifier = Modifier
                         .fillMaxSize(),
                     bottomBar = {
                         NavigationBar {
-                            arrayOfNulls<Int>(16).forEachIndexed { idx, screen ->
+                            arrayOfNulls<Int>(1).forEachIndexed { idx, screen ->
                                 NavigationBarItem(
                                     selected = selectedScreenIndex == idx,
                                     onClick = { selectedScreenIndex = idx },
@@ -73,25 +73,29 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        when (selectedScreenIndex) {
-                            0 -> RoadMapScreen1()
-                            1 -> RoadMapScreen2()
-                            2 -> RoadMapScreen3()
-                            3 -> RoadMapScreen4()
-                            4 -> RoadMapScreen5()
-                            5 -> RoadMapScreen6()
-                            6 -> RoadMapScreen7()
-                            7 -> RoadMapScreen8()
-                            8 -> RoadMapScreen9()
-                            9 -> RoadMapScreen10()
-                            10 -> RoadMapScreen11()
-                            11 -> RoadMapScreen12()
-                            12 -> RoadMapScreen13()
-                            13 -> GeminiMap1()
-                            14 -> GeminiMap2()
-                            15 -> GeminiMap3()
-                            else -> RoadMapScreen1()
-                        }
+//                        CustomRoadmapScreen()
+//                        CustomMapBackground()
+//                        CustomInteractiveMap()
+//                        when (selectedScreenIndex) {
+////                            0 -> RoadMapScreen1()
+////                            1 -> RoadMapScreen2()
+////                            2 -> RoadMapScreen3()
+////                            3 -> RoadMapScreen4()
+////                            4 -> RoadMapScreen5()
+////                            5 -> RoadMapScreen6()
+////                            6 -> RoadMapScreen7()
+////                            7 -> RoadMapScreen8()
+////                            8 -> RoadMapScreen9()
+////                            9 -> RoadMapScreen10()
+////                            10 -> RoadMapScreen11()
+////                            11 -> RoadMapScreen12()
+////                            12 -> RoadMapScreen13()
+////                            13 -> GeminiMap1()
+////                            14 -> GeminiMap2()
+////                            15 -> GeminiMap3()
+//                            16 -> CustomRoadmapScreen()
+//                            else -> RoadMapScreen1()
+//                        }
                     }
                 }
             }

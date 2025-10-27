@@ -54,4 +54,16 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    implementation(libs.lifecycle.runtime.compose)
+    implementation(libs.compose.foundation)
+
+    // Core Google Maps SDK
+    implementation(libs.google.maps.sdk)
+
+    // Compose wrapper for the maps SDK
+    implementation(libs.google.maps.compose)
+
+//    implementation(libs.google.maps.utils)
+
 }

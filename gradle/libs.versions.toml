@@ -8,6 +8,10 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.9.4"
 activityCompose = "1.11.0"
 composeBom = "2025.05.00"
+googleMaps = "19.2.0"
+mapsCompose = "4.3.2"
+lifecycle-runtime-compose = "2.8.2"
+google-maps-utils = "3.19.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -24,9 +28,17 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+google-maps-sdk = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "googleMaps" }
+google-maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "mapsCompose" }
+google-maps-utils = { module = "com.google.maps.android:android-maps-utils", version.ref = "google-maps-utils" }
+
+compose-foundation = { module = "androidx.compose.foundation:foundation" }
+lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle-runtime-compose" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
 
