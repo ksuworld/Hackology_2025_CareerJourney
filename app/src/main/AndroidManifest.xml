@@ -20,8 +20,9 @@
         <!--            android:name=".MainActivity"-->
         <!--            android:name=".CustomGoogleMapsActivity"-->
         <!--            android:name=".CustomImageActivity"-->
+        <!--            android:name=".VectorDrawableActivity"-->
         <activity
-            android:name=".VectorDrawableActivity"
+            android:name=".CanvasActivity"
             android:exported="true"
             android:theme="@style/Theme.CareerJourney">
             <intent-filter>
