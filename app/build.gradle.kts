@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -66,4 +67,12 @@ dependencies {
 
 //    implementation(libs.google.maps.utils)
 
+    implementation("androidx.navigation:navigation-compose:2.7.0")
+//    implementation("androidx.compose.material:material:1.5.0")
+    implementation("androidx.compose.material:material-icons-core:1.5.0")
+    implementation("androidx.compose.material:material-icons-extended:1.5.0")
+    implementation("com.airbnb.android:lottie-compose:6.0.0")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
+
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
 }

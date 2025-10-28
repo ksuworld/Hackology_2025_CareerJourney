@@ -372,12 +372,34 @@ fun InteractiveRoadmapScreenCanvas(
 
                     if (todaySegment != null && imageSize.height > 0) {
                         scope.launch {
+                            // 1. Calculate the Y position of the segment's center in original image pixels.
                             val segmentCenterY = ((todaySegment.startY + todaySegment.endY) / 2f) * imageSize.height
-                            val centerScreenY = boxSize.height / 2f
-                            val targetScale = initialScale * 2.5f // Zoom in
-                            val targetOffsetY = centerScreenY - segmentCenterY * targetScale
 
-                            scope.launch { offsetX.animateTo(0f, animationSpec = tween(500)) }
+                            // 2. Define the Target Scale (Zoom Level)
+                            // We use a specific zoom, e.g., 2.5 times the initial scale.
+                            val targetScale = initialScale * 2.5f
+
+                            // 3. Calculate the Target Offset Y.
+                            // This calculation centers the segment on the screen after scaling.
+                            // TargetOffsetY = (Screen Center Y) - (Segment Center Y * Target Scale)
+                            // The target Y should be adjusted by the initial vertical offset (initialOffsetY.value)
+                            // which is the top margin created when the image is vertically centered at 1x scale.
+
+                            val centerScreenY = boxSize.height / 2f
+
+                            // Y position of the segment center relative to the top of the overall box,
+                            // if the image was not initially offset (at Y=0).
+                            val segmentYAfterScale = segmentCenterY * targetScale
+
+                            // The required offset is the difference between the center of the screen
+                            // and the scaled position of the segment center, adjusted for the initial offset.
+                            val targetOffsetY = centerScreenY - segmentYAfterScale + initialOffsetY.value * targetScale
+
+                            // Ensure the X-offset is centered (or 0 if the image fits horizontally)
+                            val targetOffsetX = 0f
+
+                            // Animate the pan and zoom
+                            scope.launch { offsetX.animateTo(targetOffsetX, animationSpec = tween(500)) }
                             scope.launch { offsetY.animateTo(targetOffsetY, animationSpec = tween(500)) }
                             scope.launch { scale.animateTo(targetScale, animationSpec = tween(500)) }
                         }
