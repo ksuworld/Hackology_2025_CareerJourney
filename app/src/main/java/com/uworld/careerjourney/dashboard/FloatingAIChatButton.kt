@@ -62,7 +62,8 @@ fun FloatingAIChatButton(
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
-                            Color(0xFF4F8DFB).copy(alpha = glowAlpha),
+//                            Color(0xFF4F8DFB).copy(alpha = glowAlpha),
+                            AccentText.copy(alpha = glowAlpha),
                             Color.Transparent
                         ),
                         radius = 100f
@@ -91,7 +92,8 @@ fun FloatingAIChatButton(
                 tint = Color.White,
                 modifier = Modifier
                     .size(32.dp)
-                    .background(Color(0xFF4F8DFB), shape = CircleShape)
+//                    .background(Color(0xFF4F8DFB), shape = CircleShape)
+                    .background(AccentText, shape = CircleShape)
                     .padding(8.dp)
             )
         }
