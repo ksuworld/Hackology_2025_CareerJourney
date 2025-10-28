@@ -32,7 +32,7 @@
 <!--            </intent-filter>-->
         </activity>
         <activity
-            android:name=".onboarding.OnBoardingActivity"
+            android:name=".sample_journey.OnBoardingActivity"
             android:exported="true"
             android:theme="@style/Theme.CareerJourney">
             <intent-filter>
