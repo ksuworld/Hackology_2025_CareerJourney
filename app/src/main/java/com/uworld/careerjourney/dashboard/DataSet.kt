@@ -373,7 +373,8 @@ fun getMilestonesForJourney(journeyType: CareerJourneyType) {
 @Serializable
 data class ChatMessage(
     val text: String,
-    val isUser: Boolean
+    val isUser: Boolean,
+    val isTyping: Boolean = false
 )
 
 // 1. Enum to define the status of a stage card in the UI

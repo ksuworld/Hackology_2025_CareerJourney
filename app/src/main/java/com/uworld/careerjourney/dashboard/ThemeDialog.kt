@@ -23,7 +23,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -67,7 +66,7 @@ fun ThemeSelectionDialog(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
+//                    .horizontalScroll(rememberScrollState())
             ) {
                 GlobalThemeManager.themesIds.forEach { themeId ->
                     val isSelected = themeId == selectedThemeId
@@ -76,8 +75,8 @@ fun ThemeSelectionDialog(
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .width(120.dp)
-                            .height(180.dp)
+                            .weight(1f)
+                            .height(200.dp)
                             .clip(RoundedCornerShape(16.dp))
                             .border(
                                 width = 3.dp,

@@ -19,15 +19,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,11 +47,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun ChecklistScreen(
-    navController: NavController? = null,
-    journeyId: String = "JNY-004"
+    journeyId: String = "JNY-004",
+    onBack: () -> Unit
 ) {
     val milestones = remember {
         listOf(
@@ -113,7 +119,7 @@ fun ChecklistScreen(
                     .animateContentSize()
             ) {
                 Spacer(Modifier.height(20.dp))
-                ChecklistHeader(progress)
+                ChecklistHeader(progress, onBack)
 
                 LazyColumn(
                     modifier = Modifier
@@ -135,8 +141,9 @@ fun ChecklistScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ChecklistHeader(progress: Float) {
+private fun ChecklistHeader(progress: Float, onBack: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Start
@@ -146,20 +153,25 @@ private fun ChecklistHeader(progress: Float) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { /* navController?.popBackStack() */ }) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_media_previous),
-                    contentDescription = "Back",
-                    tint = Color.Black
-                )
+//            IconButton(onClick = { navController.popBackStack() }) {
+//                Icon(
+//                    painter = painterResource(R.drawable.ic_media_previous),
+//                    contentDescription = "Back",
+//                    tint = Color.Black
+//                )
+//            }
+            IconButton(onClick = onBack) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back", tint = AccentText)
             }
 
             Box(contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
-                    progress = progress,
+                    progress = { progress },
+                    modifier = Modifier.size(42.dp),
                     color = Color(0xFF4CAF50),
                     strokeWidth = 6.dp,
-                    modifier = Modifier.size(42.dp)
+                    trackColor = Color(0xFFC1C2C1),
+                    strokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
                 )
                 Text(
                     "${(progress * 100).toInt()}%",

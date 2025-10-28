@@ -71,15 +71,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.uworld.careerjourney.InteractiveRoadmapScreenCanvas
-import com.uworld.careerjourney.R
-import com.uworld.careerjourney.sample_journey.ThemeSettingsDialog
-import com.uworld.careerjourney.sample_journey.ThemeState
 import java.time.LocalDate
 
 // ---------------------------
@@ -108,30 +106,31 @@ class CareerCompassActivity : ComponentActivity() {
 @Composable
 fun CareerCompassApp() {
     val nav = rememberNavController()
-    var showThemeSettings by remember { mutableStateOf(false) }
-    var themeState by remember { mutableStateOf(ThemeState.default()) }
 
     MaterialTheme {
         NavHost(navController = nav, startDestination = "dashboard") {
             composable("dashboard") {
                 DashboardScreen(
-                    onNavigateToMilestone = { id -> nav.navigate("milestone/$id") },
-                    onNavigateToMap = { id -> nav.navigate("map") },
-                    onNavigateChat = { nav.navigate("chat") }
+//                    onNavigateToMilestone = { id -> nav.navigate("milestone/$id") },
+                    onNavigateToMilestone = { id -> nav.navigate("checkpointsList/$id") },
+                    onNavigateToMap = { id -> nav.navigate("map/$id") },
+                    onNavigateChat = { nav.navigate("chat/$id") }
                 )
             }
             composable("milestone/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { navBack ->
                 val id = navBack.arguments?.getInt("id") ?: 0
                 MilestoneDetailScreen(milestoneId = id, onBack = { nav.popBackStack() })
             }
-            composable("checkpointsList", arguments = listOf(navArgument("id") { type = NavType.StringType })) { navBack ->
+            composable("checkpointsList/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) { navBack ->
                 val id = navBack.arguments?.getString("id") ?: ""
-                ChecklistScreen(journeyId = id)
+                ChecklistScreen(journeyId = id, onBack = { nav.popBackStack() })
             }
-            composable("chat") {
+            composable("chat/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) { navBack ->
+                val id = navBack.arguments?.getString("id") ?: ""
                 ChatPlaceholderScreen(onBack = { nav.popBackStack() })
             }
-            composable("map") {
+            composable("map/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) { navBack ->
+                val id = navBack.arguments?.getString("id") ?: ""
                 InteractiveRoadmapScreenCanvas(
                     startDate = LocalDate.now().minusDays(100),
                     endDate = LocalDate.now().plusDays(100)
@@ -164,6 +163,7 @@ fun DashboardScreen(
 ) {
 
     var showThemeSettings by remember { mutableStateOf(false) }
+    var showChatDialog by remember { mutableStateOf(false) }
 
     Surface(modifier = Modifier.fillMaxSize(), color = BG1) {
         LazyColumn(
@@ -299,7 +299,34 @@ fun DashboardScreen(
         }
 
         // Floating chat button
-        FloatingAIChatButton { onNavigateChat?.invoke() }
+        FloatingAIChatButton1 { onNavigateChat?.invoke() }
+//        FloatingAIChatButton2 { showChatDialog = true }
+//        FloatingAIChatButton3 { showChatDialog = !showChatDialog }
+//        FloatingAIChatButton1 { showChatDialog = !showChatDialog }
+//        GlowingAiChatButton { showChatDialog = !showChatDialog }
+
+        if (showChatDialog) {
+//            GeminiChatScreen()
+            AiChatScreen()
+//            Dialog(onDismissRequest = { showChatDialog = false }) {
+//                Surface(
+//                    shape = RoundedCornerShape(16.dp),
+//                    color = Color.White,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(500.dp)
+//                ) {
+//                    AiChatScreen()
+//                }
+//            }
+
+            // Chat Dialog Overlay
+        }
+
+//        AiChatBottomSheet(
+//            visible = showChatDialog,
+//            onDismiss = { showChatDialog = false },
+//        )
     }
 }
 
