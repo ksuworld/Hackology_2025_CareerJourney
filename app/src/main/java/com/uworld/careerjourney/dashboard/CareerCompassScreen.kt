@@ -32,6 +32,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.BusinessCenter
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.ColorLens
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.Button
@@ -49,6 +51,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -70,6 +76,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.uworld.careerjourney.InteractiveRoadmapScreenCanvas
+import com.uworld.careerjourney.R
+import com.uworld.careerjourney.sample_journey.ThemeSettingsDialog
+import com.uworld.careerjourney.sample_journey.ThemeState
+import java.time.LocalDate
 
 // ---------------------------
 // Single-file Career Compass Screen
@@ -97,17 +108,44 @@ class CareerCompassActivity : ComponentActivity() {
 @Composable
 fun CareerCompassApp() {
     val nav = rememberNavController()
+    var showThemeSettings by remember { mutableStateOf(false) }
+    var themeState by remember { mutableStateOf(ThemeState.default()) }
+
     MaterialTheme {
         NavHost(navController = nav, startDestination = "dashboard") {
             composable("dashboard") {
-                DashboardScreen(onNavigateToMilestone = { id -> nav.navigate("milestone/$id") }, onNavigateChat = { nav.navigate("chat") })
+                DashboardScreen(
+                    onNavigateToThemeSelection = { nav.navigate("themeSelection") },
+                    onNavigateToMilestone = { id -> nav.navigate("milestone/$id") },
+                    onNavigateToMap = { id -> nav.navigate("map") },
+                    onNavigateChat = { nav.navigate("chat") })
             }
             composable("milestone/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { navBack ->
                 val id = navBack.arguments?.getInt("id") ?: 0
                 MilestoneDetailScreen(milestoneId = id, onBack = { nav.popBackStack() })
             }
+            composable("checkpointsList", arguments = listOf(navArgument("id") { type = NavType.StringType })) { navBack ->
+                val id = navBack.arguments?.getString("id") ?: ""
+                ChecklistScreen(journeyId = id)
+            }
             composable("chat") {
                 ChatPlaceholderScreen(onBack = { nav.popBackStack() })
+            }
+            composable("map") {
+                InteractiveRoadmapScreenCanvas(
+                    imageResId = R.drawable.roadmap_vector_blue,
+                    startDate = LocalDate.now().minusDays(100),
+                    endDate = LocalDate.now().plusDays(100)
+                )
+            }
+            composable("themeSelection") { backStackEntry ->
+                ThemeSettingsDialog(
+                    themeState = themeState,
+                    onDismiss = { showThemeSettings = false },
+                    onSave = {
+                        themeState = it
+                        showThemeSettings = false
+                    })
             }
         }
     }
@@ -124,10 +162,17 @@ private val OrangeHeader = Color(0xFFECB88D) // pastel orange
 private val AccentText = Color(0xFF35404A)
 private val Muted = Color(0xFF9DA6B0)
 
+private var onGoingJourneyTypeId = "JNY-003"
+
 /** Dashboard composable */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen(onNavigateToMilestone: ((Int) -> Unit)? = null, onNavigateChat: (() -> Unit)? = null) {
+fun DashboardScreen(
+    onNavigateToThemeSelection: (() -> Unit)? = null,
+    onNavigateToMilestone: ((Int) -> Unit)? = null,
+    onNavigateToMap: ((String) -> Unit)? = null,
+    onNavigateChat: (() -> Unit)? = null
+) {
     Surface(modifier = Modifier.fillMaxSize(), color = BG1) {
         LazyColumn(
             modifier = Modifier
@@ -145,16 +190,31 @@ fun DashboardScreen(onNavigateToMilestone: ((Int) -> Unit)? = null, onNavigateCh
                     )
                     Spacer(modifier = Modifier.weight(1f))
 
+                    // map icon circle (navigates to map - not implemented)
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF3C4752))
+                            .clickable { onNavigateToMap?.invoke(onGoingJourneyTypeId) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.Map, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
                     // gem/star icon circle (navigates to chat)
                     Box(
                         modifier = Modifier
-                            .size(44.dp)
+                            .size(40.dp)
                             .clip(CircleShape)
                             .background(Color(0xFF3C4752))
-                            .clickable { onNavigateChat?.invoke() },
+                            .clickable { onNavigateToThemeSelection?.invoke() },
                         contentAlignment = Alignment.Center
                     ) {
-                        GemIcon(size = 22.dp, tint = Color(0xFFDEEAFB))
+//                        GemIcon(size = 22.dp, tint = Color(0xFFDEEAFB))
+                        Icon(Icons.Default.ColorLens, contentDescription = null, tint = Color.White, modifier = Modifier.size(22.dp))
                     }
                 }
 
@@ -290,6 +350,9 @@ fun DashboardScreen(onNavigateToMilestone: ((Int) -> Unit)? = null, onNavigateCh
                 }
             }
         }
+
+        // Floating chat button
+        FloatingAIChatButton { onNavigateChat?.invoke() }
     }
 }
 
@@ -319,7 +382,8 @@ fun OverallProgressPill(label: String, progress: Float) {
         CircularProgressIndicator(
             progress = { progress },
             modifier = Modifier.size(20.dp),
-            color = Color(0xFF6AB0FF),
+//            color = Color(0xFF6AB0FF),
+            color = Color.White,
             strokeWidth = 3.dp,
             trackColor = Color(0xFF595C5E),
             strokeCap = ProgressIndicatorDefaults.CircularDeterminateStrokeCap,
@@ -479,19 +543,10 @@ fun SubCard(data: SubCardData, index: Int, onClick: () -> Unit) {
 //                    )
 
                     val buttonColor = when (data.status) {
-                        StageStatus.COMPLETED -> {
-                            ButtonDefaults.buttonColors(containerColor = Color.Transparent)
-                        }
-
-                        StageStatus.CURRENT_FOCUS -> {
-                            ButtonDefaults.buttonColors(containerColor = AccentText)
-                        }
-
-                        else -> {
-                            ButtonDefaults.buttonColors(containerColor = Color.Transparent)
-                        }
+                        StageStatus.COMPLETED -> ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                        StageStatus.CURRENT_FOCUS -> ButtonDefaults.buttonColors(containerColor = AccentText)
+                        else -> ButtonDefaults.buttonColors(containerColor = Color.Transparent)
                     }
-
 
                     when (data.status) {
                         StageStatus.COMPLETED -> {

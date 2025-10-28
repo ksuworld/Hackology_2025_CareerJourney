@@ -1,5 +1,6 @@
-package com.example.careerjourney.ui.screens
+package com.uworld.careerjourney.dashboard
 
+import android.R
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,12 +42,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.uworld.careerjourney.dashboard.CareerMilestone
-import com.uworld.careerjourney.dashboard.StageStatus
 
 @Composable
 fun ChecklistScreen(
-    navController: NavController? = null
+    navController: NavController? = null,
+    journeyId: String = "JNY-004"
 ) {
     val milestones = remember {
         listOf(
@@ -148,7 +148,7 @@ private fun ChecklistHeader(progress: Float) {
         ) {
             IconButton(onClick = { /* navController?.popBackStack() */ }) {
                 Icon(
-                    painter = painterResource(android.R.drawable.ic_media_previous),
+                    painter = painterResource(R.drawable.ic_media_previous),
                     contentDescription = "Back",
                     tint = Color.Black
                 )
