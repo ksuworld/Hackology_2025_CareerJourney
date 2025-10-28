@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Student Journey Map</title>
+    <script src="js/tailwindCSS.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrolling */
+            background-color: #00000000; /* Transparent background */
+            /*background: url("/assets/interactiveMap/textures/gradient-bg.jfif") no-repeat center center fixed;*/
+        }
+        #info-panel {
+            font-family: 'Inter', sans-serif;
+            transition: transform 0.3s ease-in-out;
+            background: rgba(255, 255, 255, 0.21);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(6.5px);
+            -webkit-backdrop-filter: blur(6.5px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+        }
+        /* Style for the 2D numbers on nodes */
+        .node-label {
+            position: absolute;
+            color: #333;
+            font-weight: bold;
+            font-size: 1.2em;
+            pointer-events: none; /* Allows clicks to pass through to the 3D node */
+            transform: translate(-50%, -50%); /* Center the text */
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
+        }
+
+        /* NEW: Class to open the panel */
+        #info-panel.info-panel-open {
+            transform: translateY(0) translateX(0);
+        }
+
+        #loading-overlay {
+    /* Fullscreen, sits on top */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    /* Your light grey background */
+    background: #eaf2fd;
+
+    /* Center the contents */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    /* Start visible, we'll hide it with JS */
+    z-index: 100;
+}
+
+#loading-bar-container {
+    width: 80%;
+    max-width: 300px;
+    height: 15px;
+    background: #dee9fd;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #ccc;
+}
+
+#loading-bar {
+    width: 0%; /* Starts at 0, JS will update this */
+    height: 100%;
+    background: #010861; /* Your dark blue road color */
+    transition: width 0.2s ease-out;
+}
+
+#loading-percentage {
+    margin-top: 10px;
+    font-family: sans-serif;
+    color: #010861;
+}
+#camera-controls {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 101;
+}
+
+#camera-controls button {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #010861; /* Your dark blue road color */
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.2s, transform 0.2s;
+
+    /* Center icon/text */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+#camera-controls button:hover {
+    background-color: #fff;
+    transform: scale(1.05);
+}
+
+#camera-controls button svg {
+    width: 24px;
+    height: 24px;
+}
+    </style>
+
+</head>
+<body class="bg-[#A0E6A0] text-white">
+
+<div id="loading-overlay">
+    <div id="loading-bar-container">
+        <div id="loading-bar"></div>
+    </div>
+    <div id="loading-percentage">0%</div>
+</div>
+
+<div id="camera-controls">
+    <button id="top-view-btn" title="Top View">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 3l-0.16 0.03L15 5.1 9 3 3.36 4.9C3.15 4.97 3 5.15 3 5.38V20.5a0.5.5 0 0 0 0.5 0.5l0.16 -0.03L9 18.9l6 2.1 5.64 -1.9C20.85 19.03 21 18.85 21 18.62V3.5A0.5.5 0 0 0 20.5 3zM15 17.9l-6 -2.1V5.1l6 2.1V17.9z"></path></svg>
+    </button>
+    <button id="focus-milestone-btn" title="Next Milestone">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM12 20c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8S16.41 20 12 20zM12 10.59l-4.24-4.24L6.34 7.76 12 13.41l5.66-5.66 1.41 1.41L12 16.24z"></path></svg>
+    </button>
+</div>
+
+<canvas id="journey-canvas" class="fixed top-0 left-0 w-full h-full z-10"></canvas>
+
+<div id="info-panel" class="fixed bottom-0 left-0 z-30 w-full transform translate-y-full sm:translate-y-0 sm:top-0 sm:max-w-sm sm:-translate-x-full bg-white text-gray-800 p-8 shadow-2xl rounded-t-2xl sm:rounded-t-none sm:rounded-r-2xl">
+    <button id="close-panel" class="absolute top-4 right-6 text-gray-500 hover:text-gray-800 text-3xl font-light">&times;</button>
+
+    <h2 id="node-title" class="text-2xl font-bold mb-2 mt-6 sm:mt-0">Node Title</h2>
+    <p id="node-description" class="text-gray-600">This is a milestone on your student journey. Click other nodes to explore!</p>
+</div >
+
+<div id="node-labels-container" class="fixed top-0 left-0 w-full h-full z-10 pointer-events-none"></div>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "./three/three.module.js",
+            "OrbitControls": "./three/jsm/controls/OrbitControls.js",
+            "GLTFLoader": "./three/jsm/loaders/GLTFLoader.js",
+            "DRACOLoader": "./three/jsm/loaders/DRACOLoader.js"
+        }
+    }
+</script>
+
+<script type="module" src="js/new-road.js"></script>
+</body>
+</html>

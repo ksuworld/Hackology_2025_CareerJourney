@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Student Journey Map</title>
+    <script src="js/tailwindCSS.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent scrolling */
+            background-color: #A0E6A0; /* Light green background for the map UI */
+        }
+        #info-panel {
+            font-family: 'Inter', sans-serif;
+            transition: transform 0.3s ease-in-out;
+            background: rgba(255, 255, 255, 0.21);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(6.5px);
+            -webkit-backdrop-filter: blur(6.5px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+        }
+        /* Style for the 2D numbers on nodes */
+        .node-label {
+            position: absolute;
+            color: #333;
+            font-weight: bold;
+            font-size: 1.2em;
+            pointer-events: none; /* Allows clicks to pass through to the 3D node */
+            transform: translate(-50%, -50%); /* Center the text */
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
+        }
+
+        /* NEW: Class to open the panel */
+        #info-panel.info-panel-open {
+            transform: translateY(0) translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-[#A0E6A0] text-white">
+
+<!-- This canvas is where the 3D scene will be rendered --><canvas id="journey-canvas" class="fixed top-0 left-0 w-full h-full z-10"></canvas>
+
+<div id="info-panel" class="fixed bottom-0 left-0 z-30 w-full transform translate-y-full sm:translate-y-0 sm:top-0 sm:max-w-sm sm:-translate-x-full bg-white text-gray-800 p-8 shadow-2xl rounded-t-2xl sm:rounded-t-none sm:rounded-r-2xl">
+    <!-- NEW: Close button -->
+    <button id="close-panel" class="absolute top-4 right-6 text-gray-500 hover:text-gray-800 text-3xl font-light">&times;</button>
+
+    <h2 id="node-title" class="text-2xl font-bold mb-2 mt-6 sm:mt-0">Node Title</h2>
+    <p id="node-description" class="text-gray-600">This is a milestone on your student journey. Click other nodes to explore!</p>
+</div>
+
+<div id="node-labels-container" class="fixed top-0 left-0 w-full h-full z-10 pointer-events-none"></div>
+
+<script type="importmap">
+    {
+        "imports": {
+            "three": "./three/three.module.js",
+            "OrbitControls": "./three/jsm/controls/OrbitControls.js",
+            "GLTFLoader": "./three/jsm/loaders/GLTFLoader.js"
+        }
+    }
+</script>
+
+</body>
+</html>
+
+<script type="module" src="js/first-scene.js"></script>

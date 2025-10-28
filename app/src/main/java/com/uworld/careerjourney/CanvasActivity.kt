@@ -54,6 +54,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.get
 import androidx.core.graphics.toColorInt
+import androidx.navigation.compose.composable
 import com.uworld.careerjourney.old.MarkerData
 import com.uworld.careerjourney.old.SegmentData
 import kotlinx.coroutines.launch
@@ -411,42 +412,9 @@ fun InteractiveRoadmapScreenCanvas(
         var nameField by remember { mutableStateOf("") }
         var markerType by remember { mutableStateOf("checkpoint") }
 
-        AlertDialog(
-            onDismissRequest = { isAddingMarker = false },
-            title = { Text("Add Checkpoint/Milestone") },
-            text = {
-                Column {
-                    OutlinedTextField(
-                        value = nameField,
-                        onValueChange = { nameField = it },
-                        label = { Text("Name") }
-                    )
-                    Button(onClick = { markerType = "checkpoint" }) { Text("Checkpoint") }
-                    Button(onClick = { markerType = "milestone" }) { Text("Milestone") }
-                }
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        val newMarker = MarkerData(
-                            id = markers.size + 1,
-                            // touchPoint is already in Image Pixel Coords, convert to 0-100 normalized
-                            position = Offset(
-                                touchPoint.x / imageSize.width * 100,
-                                touchPoint.y / imageSize.height * 100
-                            ),
-                            name = nameField.ifEmpty { "New $markerType" },
-                            type = markerType,
-                            date = LocalDate.now()
-                        )
-                        markers.add(newMarker)
-                        isAddingMarker = false
-                    },
-                    enabled = nameField.isNotEmpty()
-                ) {
-                    Text("Add")
-                }
-            }
-        )
+//        composa("map") {
+
+            CheckpointPopUpScreen()
+//        }
     }
 }

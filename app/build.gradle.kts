@@ -64,7 +64,8 @@ dependencies {
 
     // Compose wrapper for the maps SDK
     implementation(libs.google.maps.compose)
-
+    api("androidx.cardview:cardview:1.0.0")
+    implementation("androidx.constraintlayout:constraintlayout:1.1.2")
 //    implementation(libs.google.maps.utils)
 
     implementation("androidx.navigation:navigation-compose:2.7.0")
