@@ -54,6 +54,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.get
 import androidx.core.graphics.toColorInt
+import com.uworld.careerjourney.dashboard.GlobalThemeManager
 import androidx.navigation.compose.composable
 import com.uworld.careerjourney.old.MarkerData
 import com.uworld.careerjourney.old.SegmentData
@@ -79,8 +80,6 @@ class CanvasActivity : ComponentActivity() {
                 val endDate = LocalDate.now().plusDays(100)
 
                 InteractiveRoadmapScreenCanvas(
-                    // IMPORTANT: This must be a Vector Drawable (XML) resource ID
-                    imageResId = R.drawable.roadmap_vector_blue,
                     startDate = startDate,
                     endDate = endDate
                 )
@@ -111,7 +110,6 @@ fun getBitmapFromVectorDrawableCanvas(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InteractiveRoadmapScreenCanvas(
-    @DrawableRes imageResId: Int,
     startDate: LocalDate,
     endDate: LocalDate
 ) {
@@ -160,11 +158,13 @@ fun InteractiveRoadmapScreenCanvas(
         }
     }
 
+
     // ----------------------------------------------------------------------
     // 3. DYNAMIC SVG LOADING AND INITIAL ZOOM
     // ----------------------------------------------------------------------
 
     LaunchedEffect(boxSize) {
+        val imageResId = GlobalThemeManager.themeResIds[GlobalThemeManager.selectedThemeId]
         if (boxSize.width > 0) {
             val drawable = ContextCompat.getDrawable(context, imageResId)
             val drawableWidth = drawable?.intrinsicWidth ?: 1
@@ -185,7 +185,11 @@ fun InteractiveRoadmapScreenCanvas(
                 if (renderedBitmap != null) {
                     originalBitmap = renderedBitmap
                     imageSize = IntSize(renderedBitmap.width, renderedBitmap.height)
-                    roadHexColor = "#0164BE".toColorInt()
+                    roadHexColor = if (GlobalThemeManager.selectedThemeId == 0) {
+                        "#0164BE".toColorInt()
+                    } else {
+                        "#F37301".toColorInt()
+                    }
 
                     val calculatedInitialScale = 1f
                     val scaledHeight = renderedBitmap.height * calculatedInitialScale

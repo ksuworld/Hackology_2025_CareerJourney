@@ -22,7 +22,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.uworld.careerjourney.dashboard.CareerCompassApp
 import com.uworld.careerjourney.dashboard.CareerTimelineScreen
-import com.uworld.careerjourney.dashboard.DashboardScreen
 
 class OnBoardingActivity : ComponentActivity() {
 
@@ -59,9 +58,6 @@ class OnBoardingActivity : ComponentActivity() {
                                 when (tabIndex) {
                                     0 -> {
                                         CareerCompassApp()
-//                                        DashboardScreen(onNavigateToMilestone = { journey ->
-//                                            navController.navigate("roadmap/$journey")
-//                                        })
                                     }
 
                                     1 -> CareerTimelineScreen(onJourneySelected = { journey ->

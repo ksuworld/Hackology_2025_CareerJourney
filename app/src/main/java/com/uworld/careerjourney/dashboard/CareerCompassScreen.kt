@@ -71,15 +71,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.uworld.careerjourney.InteractiveRoadmapScreenCanvas
-import com.uworld.careerjourney.R
-import com.uworld.careerjourney.sample_journey.ThemeSettingsDialog
-import com.uworld.careerjourney.sample_journey.ThemeState
 import java.time.LocalDate
 
 // ---------------------------
@@ -108,71 +106,65 @@ class CareerCompassActivity : ComponentActivity() {
 @Composable
 fun CareerCompassApp() {
     val nav = rememberNavController()
-    var showThemeSettings by remember { mutableStateOf(false) }
-    var themeState by remember { mutableStateOf(ThemeState.default()) }
 
     MaterialTheme {
         NavHost(navController = nav, startDestination = "dashboard") {
             composable("dashboard") {
                 DashboardScreen(
-                    onNavigateToThemeSelection = { nav.navigate("themeSelection") },
-                    onNavigateToMilestone = { id -> nav.navigate("milestone/$id") },
-                    onNavigateToMap = { id -> nav.navigate("map") },
-                    onNavigateChat = { nav.navigate("chat") })
+//                    onNavigateToMilestone = { id -> nav.navigate("milestone/$id") },
+                    onNavigateToMilestone = { id -> nav.navigate("checkpointsList/$id") },
+                    onNavigateToMap = { id -> nav.navigate("map/$id") },
+                    onNavigateChat = { nav.navigate("chat/$id") }
+                )
             }
             composable("milestone/{id}", arguments = listOf(navArgument("id") { type = NavType.IntType })) { navBack ->
                 val id = navBack.arguments?.getInt("id") ?: 0
                 MilestoneDetailScreen(milestoneId = id, onBack = { nav.popBackStack() })
             }
-            composable("checkpointsList", arguments = listOf(navArgument("id") { type = NavType.StringType })) { navBack ->
+            composable("checkpointsList/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) { navBack ->
                 val id = navBack.arguments?.getString("id") ?: ""
-                ChecklistScreen(journeyId = id)
+                ChecklistScreen(journeyId = id, onBack = { nav.popBackStack() })
             }
-            composable("chat") {
+            composable("chat/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) { navBack ->
+                val id = navBack.arguments?.getString("id") ?: ""
                 ChatPlaceholderScreen(onBack = { nav.popBackStack() })
             }
-            composable("map") {
+            composable("map/{id}", arguments = listOf(navArgument("id") { type = NavType.StringType })) { navBack ->
+                val id = navBack.arguments?.getString("id") ?: ""
                 InteractiveRoadmapScreenCanvas(
-                    imageResId = R.drawable.roadmap_vector_blue,
                     startDate = LocalDate.now().minusDays(100),
                     endDate = LocalDate.now().plusDays(100)
                 )
-            }
-            composable("themeSelection") { backStackEntry ->
-                ThemeSettingsDialog(
-                    themeState = themeState,
-                    onDismiss = { showThemeSettings = false },
-                    onSave = {
-                        themeState = it
-                        showThemeSettings = false
-                    })
             }
         }
     }
 }
 
 /** Colors tuned to the reference image (purple, green, orange, and background) */
-private val BG = Color(0xFF2F3742)
-private val BG1 = Color(0xFFEEEEF1)
-private val BG2 = Color(0xFF0A0A0A)
-private val CardBg = Color(0xFFEEF2F5)
-private val PurpleHeader = Color(0xFFBFA9EA) // pastel purple
-private val GreenHeader = Color(0xFFABD39F) // pastel green
-private val OrangeHeader = Color(0xFFECB88D) // pastel orange
-private val AccentText = Color(0xFF35404A)
-private val Muted = Color(0xFF9DA6B0)
+val BG = Color(0xFF2F3742)
+val BG1 = Color(0xFFEEEEF1)
+val BG2 = Color(0xFF0A0A0A)
+val CardBg = Color(0xFFEEF2F5)
+val PurpleHeader = Color(0xFFBFA9EA) // pastel purple
+val GreenHeader = Color(0xFFABD39F) // pastel green
+val OrangeHeader = Color(0xFFECB88D) // pastel orange
+val AccentText = Color(0xFF35404A)
+val Muted = Color(0xFF9DA6B0)
 
-private var onGoingJourneyTypeId = "JNY-003"
+var onGoingJourneyTypeId = "JNY-003"
 
 /** Dashboard composable */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    onNavigateToThemeSelection: (() -> Unit)? = null,
     onNavigateToMilestone: ((Int) -> Unit)? = null,
     onNavigateToMap: ((String) -> Unit)? = null,
     onNavigateChat: (() -> Unit)? = null
 ) {
+
+    var showThemeSettings by remember { mutableStateOf(false) }
+    var showChatDialog by remember { mutableStateOf(false) }
+
     Surface(modifier = Modifier.fillMaxSize(), color = BG1) {
         LazyColumn(
             modifier = Modifier
@@ -210,7 +202,7 @@ fun DashboardScreen(
                             .size(40.dp)
                             .clip(CircleShape)
                             .background(Color(0xFF3C4752))
-                            .clickable { onNavigateToThemeSelection?.invoke() },
+                            .clickable { showThemeSettings = true },
                         contentAlignment = Alignment.Center
                     ) {
 //                        GemIcon(size = 22.dp, tint = Color(0xFFDEEAFB))
@@ -233,23 +225,6 @@ fun DashboardScreen(
                         headerColor = PurpleHeader,
                         iconContent = {
                             Icon(Icons.Default.School, contentDescription = null, tint = AccentText, modifier = Modifier.size(32.dp))
-//                            Box(
-//                                modifier = Modifier
-//                                    .size(44.dp)
-//                                    .background(PurpleHeader, shape = CircleShape), contentAlignment = Alignment.Center
-//                            ) {
-//                                // simple mortarboard glyph (circle with cap)
-//                                Canvas(modifier = Modifier.size(28.dp)) {
-//                                    val w = size.width
-//                                    val h = size.height
-//                                    drawCircle(Color.White, radius = w * 0.45f, center = Offset(w * 0.5f, h * 0.6f))
-//                                    drawRect(
-//                                        Color.White,
-//                                        topLeft = Offset(w * 0.05f, h * 0.0f),
-//                                        size = androidx.compose.ui.geometry.Size(w * 0.9f, h * 0.25f)
-//                                    )
-//                                }
-//                            }
                         },
                         title = "PRE-COLLEGE JOURNEY",
                         description = "Test Prep, College Applications, Scholarships",
@@ -281,22 +256,6 @@ fun DashboardScreen(
                         headerColor = GreenHeader,
                         iconContent = {
                             Icon(Icons.Default.AccountBalance, contentDescription = null, tint = AccentText, modifier = Modifier.size(32.dp))
-//
-//                            Box(
-//                                modifier = Modifier
-//                                    .size(44.dp)
-//                                    .background(GreenHeader, shape = CircleShape), contentAlignment = Alignment.Center
-//                            ) {
-//                                Canvas(modifier = Modifier.size(28.dp)) {
-//                                    val w = size.width
-//                                    val h = size.height
-//                                    drawRoundRect(
-//                                        Color.White,
-//                                        cornerRadius = CornerRadius(4f, 4f),
-//                                        size = androidx.compose.ui.geometry.Size(w, h * 0.6f)
-//                                    )
-//                                }
-//                            }
                         },
                         title = "IN-COLLEGE JOURNEY",
                         description = "Internships, Majors, Campus Life",
@@ -315,27 +274,6 @@ fun DashboardScreen(
                         headerColor = OrangeHeader,
                         iconContent = {
                             Icon(Icons.Default.BusinessCenter, contentDescription = null, tint = AccentText, modifier = Modifier.size(32.dp))
-//
-//                            Box(
-//                                modifier = Modifier
-//                                    .size(44.dp)
-//                                    .background(OrangeHeader, shape = CircleShape), contentAlignment = Alignment.Center
-//                            ) {
-//                                Canvas(modifier = Modifier.size(28.dp)) {
-//                                    val w = size.width
-//                                    val h = size.height
-//                                    drawRoundRect(
-//                                        Color.White,
-//                                        cornerRadius = CornerRadius(6f, 6f),
-//                                        size = androidx.compose.ui.geometry.Size(w * 0.8f, h * 0.5f)
-//                                    )
-//                                    drawRect(
-//                                        Color.White,
-//                                        topLeft = Offset(w * 0.2f, h * 0.55f),
-//                                        size = androidx.compose.ui.geometry.Size(w * 0.4f, h * 0.2f)
-//                                    )
-//                                }
-//                            }
                         },
                         title = "AFTER-COLLEGE JOURNEY",
                         description = "Grad School, Job Search, Early Career",
@@ -351,8 +289,44 @@ fun DashboardScreen(
             }
         }
 
+        if (showThemeSettings) {
+            ThemeSelectionDialog(
+                onDismiss = { showThemeSettings = false },
+                onThemeSelected = {
+                    GlobalThemeManager.selectedThemeId = it
+                    showThemeSettings = false
+                })
+        }
+
         // Floating chat button
-        FloatingAIChatButton { onNavigateChat?.invoke() }
+        FloatingAIChatButton1 { onNavigateChat?.invoke() }
+//        FloatingAIChatButton2 { showChatDialog = true }
+//        FloatingAIChatButton3 { showChatDialog = !showChatDialog }
+//        FloatingAIChatButton1 { showChatDialog = !showChatDialog }
+//        GlowingAiChatButton { showChatDialog = !showChatDialog }
+
+        if (showChatDialog) {
+//            GeminiChatScreen()
+            AiChatScreen()
+//            Dialog(onDismissRequest = { showChatDialog = false }) {
+//                Surface(
+//                    shape = RoundedCornerShape(16.dp),
+//                    color = Color.White,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .height(500.dp)
+//                ) {
+//                    AiChatScreen()
+//                }
+//            }
+
+            // Chat Dialog Overlay
+        }
+
+//        AiChatBottomSheet(
+//            visible = showChatDialog,
+//            onDismiss = { showChatDialog = false },
+//        )
     }
 }
 

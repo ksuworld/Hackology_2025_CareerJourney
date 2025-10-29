@@ -1,5 +1,6 @@
 package com.uworld.careerjourney.dashboard
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -15,8 +16,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -24,14 +28,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun FloatingAIChatButton(
+fun FloatingAIChatButton1(
     onClick: () -> Unit
 ) {
     // For continuous glow animation
@@ -48,24 +53,25 @@ fun FloatingAIChatButton(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(8.dp),
         contentAlignment = Alignment.BottomEnd
     ) {
         Box(
             modifier = Modifier
-                .size(68.dp)
-                .graphicsLayer {
-                    shadowElevation = 16.dp.toPx()
-                    shape = CircleShape
-                    clip = true
-                }
+                .size(50.dp)
+//                .graphicsLayer {
+//                    shadowElevation = 8.dp.toPx()
+//                    shape = CircleShape
+//                    clip = true
+//                }
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
-                            Color(0xFF4F8DFB).copy(alpha = glowAlpha),
+//                            Color(0xFF4F8DFB).copy(alpha = glowAlpha),
+                            AccentText.copy(alpha = glowAlpha),
                             Color.Transparent
                         ),
-                        radius = 100f
+                        radius = 5f
                     ),
                     shape = CircleShape
                 )
@@ -90,10 +96,200 @@ fun FloatingAIChatButton(
                 contentDescription = "AI Chat",
                 tint = Color.White,
                 modifier = Modifier
-                    .size(32.dp)
-                    .background(Color(0xFF4F8DFB), shape = CircleShape)
+                    .size(36.dp)
+//                    .background(Color(0xFF4F8DFB), shape = CircleShape)
+//                    .background(AccentText, shape = CircleShape)
+                    .background(AccentText
+//                        brush = Brush.radialGradient(
+//                            colors = listOf(
+////                            Color(0xFF4F8DFB).copy(alpha = glowAlpha),
+//                                AccentText.copy(alpha = 0.8f),
+//                                AccentText.copy(alpha = 0.4f),
+//                                AccentText.copy(alpha = 0.1f)
+//                            ),
+//                            center = androidx.compose.ui.geometry.Offset.Infinite,
+//                            radius = 25f
+//                        )
+                        ,
+                        shape = CircleShape
+                    )
                     .padding(8.dp)
             )
+        }
+    }
+}
+
+@Composable
+fun GlowingAiChatButton(
+    onClick: () -> Unit
+) {
+    // Infinite animation for glow pulse
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val glowRadius by infiniteTransition.animateFloat(
+        initialValue = 80f,
+        targetValue = 130f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = ""
+    )
+
+    Box(
+        modifier = Modifier
+            .size(100.dp)
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        // Glowing radial background
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0xFF00C6FF).copy(alpha = 0.6f),
+                            Color(0xFF00C6FF).copy(alpha = 0.2f),
+                            Color.Transparent
+                        ),
+                        radius = glowRadius
+                    ),
+                    shape = CircleShape
+                )
+        )
+
+        // Main Button (futuristic look)
+        Box(
+            modifier = Modifier
+                .size(64.dp)
+                .background(
+                    brush = Brush.linearGradient(
+                        listOf(
+                            Color(0xFF00C6FF),
+                            Color(0xFF0072FF)
+                        )
+                    ),
+                    shape = CircleShape
+                )
+                .shadow(8.dp, CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.AutoAwesome,
+                contentDescription = "AI Chat",
+                tint = Color.White,
+                modifier = Modifier.size(30.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun FloatingAIChatButton2(
+    onClick: () -> Unit
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = ""
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        Box(
+            modifier = Modifier
+                .size(70.dp)
+                .clip(CircleShape)
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0xFF6C63FF).copy(alpha = glowAlpha * 0.4f),
+                            Color.Transparent
+                        )
+                    )
+                )
+        )
+
+        FloatingActionButton(
+            onClick = onClick,
+            modifier = Modifier.size(64.dp),
+            containerColor = Color(0xFF6C63FF),
+            elevation = FloatingActionButtonDefaults.elevation(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.Chat,
+                contentDescription = "Chat",
+                tint = Color.White,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun FloatingAIChatButton3(onClick: () -> Unit) {
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.3f,
+        targetValue = 0.9f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1400, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = ""
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(28.dp),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        Box(
+            modifier = Modifier
+                .size(78.dp)
+                .background(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0xFF00E5FF).copy(alpha = glowAlpha * 0.6f),
+                            Color.Transparent
+                        )
+                    ),
+                    shape = CircleShape
+                )
+                .clickable { onClick() },
+            contentAlignment = Alignment.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(
+                        Brush.linearGradient(
+                            listOf(Color(0xFF00C6FF), Color(0xFF0072FF))
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Chat,
+                    contentDescription = "Chat",
+                    tint = Color.White,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
         }
     }
 }
